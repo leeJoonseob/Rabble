@@ -1,0 +1,3 @@
+from pre_processing import data_preprocessing
+
+data_preprocessing.combine_data()
