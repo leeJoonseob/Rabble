@@ -50,10 +50,17 @@ function App() {
         <h1>Spam Guardian</h1>
       </div>
       <form onSubmit={handleSubmit}>
-        <textarea
+      <textarea
+          className='title'
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="텍스트를 입력하세요"
+          placeholder="메일제목을 입력하세요"
+        />
+        <textarea
+          className='content'
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="메일내용을 입력하세요"
         />
         <button type="submit">스팸 검사</button>
       </form>
