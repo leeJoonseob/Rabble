@@ -45,7 +45,10 @@ function App() {
 
   return (
     <div className="App">
-      <h1>스팸 검출기</h1>
+      <div class="header">
+        <img src="/spam_guardian-removebg-preview.png"/>
+        <h1>Spam Guardian</h1>
+      </div>
       <form onSubmit={handleSubmit}>
         <textarea
           value={input}
