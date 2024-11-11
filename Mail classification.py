@@ -12,8 +12,8 @@ knn = None
 nb_model = None
 
 def combined_data():
-    google_message = pd.read_csv("C:/Project/Rabble/datasets/messages.csv")
-    spam_message = pd.read_csv("C:/Project/Rabble/datasets/spam_virus.csv")
+    google_message = pd.read_csv("Rabble/datasets/messages.csv")
+    spam_message = pd.read_csv("Rabble/datasets/spam_virus.csv")
     google_message['메일종류'] = '햄'
     spam_message['메일종류'] = '스팸'
     final_google_df = google_message[['메일종류', '메일제목']]
@@ -53,33 +53,9 @@ def train_model():
     print("모델이 학습되고 저장되었습니다.")
     return knn, nb_model
 
-def predict_email():
-    # 저장된 모델 로드
-    tfidf = joblib.load('tfidf_model.pkl')
-    knn = joblib.load('knn_model.pkl')
-    nb_model = joblib.load('nb_model.pkl')
-
-    # 사용자로부터 이메일 제목과 내용을 입력받기
-    title = input("이메일 제목을 입력하세요: ")
-    content = input("이메일 내용을 입력하세요: ")
-    test_text = title + " " + content
-    test_tfidf = tfidf.transform([test_text])
-
-    # K-NN 예측
-    knn_pred = knn.predict(test_tfidf)[0]
-    nb_pred = nb_model.predict(test_tfidf)[0]
-
-    # 결과 비교 및 출력
-    if knn_pred == nb_pred:
-        # 두 모델의 결과가 동일할 경우, 하나의 결과만 출력
-        result = "스팸" if knn_pred == 1 else "햄"
-        print(f"\n이 이메일은: {result}")
-    else:
-        # 두 모델의 결과가 다를 경우, "스팸 의심 메일"로 출력
-        print("\n이 이메일은: 스팸 의심 메일")
-
 # 모델 학습
 train_model()
 
-# 사용자 입력을 통한 판별
-predict_email()
+
+
+
