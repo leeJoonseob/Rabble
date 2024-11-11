@@ -17,13 +17,14 @@ logger.info("import 완료")
 
 
 #load data
-spam_ham  = pd.read_csv("Rabble/datasets/combined_data.csv")
+spam_ham  = pd.read_csv("Rabble/datasets/combined_data_under.csv")
 logger.info("데이터 로드 완료")
 
 #change data type to numeric
 spam_ham['메일종류'] = spam_ham['메일종류'].map({'햄':0, '스팸':1})
 logger.info("데이터 타입 변경 완료")
 
+print(spam_ham['메일종류'].value_counts())
 
 #split data
 X_train,X_test,y_train,y_test = train_test_split(spam_ham['메일제목'], spam_ham['메일종류'], test_size=0.2, random_state=42)
