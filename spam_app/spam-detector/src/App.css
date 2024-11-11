@@ -11,8 +11,10 @@ input, textarea {
   margin: 10px 0;
   box-sizing: border-box;
 }
-
-textarea {
+.title{
+  height: 40px;
+}
+.content {
   height: 100px;
 }
 
