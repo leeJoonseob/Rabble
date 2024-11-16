@@ -5,7 +5,9 @@ from flask_cors import CORS
 app = Flask(__name__)
 
 # CORS 설정: 모든 도메인에서의 요청을 허용
-CORS(app, origins=["http://localhost:3000"])
+CORS(app)
+#3000번 포트에서 실행할 경우만 허용
+#CORS(app, origins=["http://localhost:3000"])
 
 # # 모델 로드
 # nb_model = joblib.load('Rabble/models/nb_model.pkl')
@@ -22,4 +24,4 @@ def predict():
     return jsonify({'result': result})
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)  
+    app.run(debug=True, port=8080)  

@@ -1,5 +1,7 @@
 import joblib
 import os
+import numpy as np
+from post_processing.classifier import spam_ham_suspicions
 
 def predict_email(title, content):
     # 현재 스크립트(app.py) 경로
@@ -22,11 +24,11 @@ def predict_email(title, content):
     knn_pred = knn.predict(test_tfidf)[0]
     nb_pred = nb_model.predict(test_tfidf)[0]
 
-    # 결과 비교 및 출력
-    if knn_pred == nb_pred:
-        # 두 모델의 결과가 동일할 경우, 하나의 결과만 출력
-        result = "스팸" if knn_pred == 1 else "햄"
-        return result  
-    else:
-        # 두 모델의 결과가 다를 경우, "스팸 의심 메일"로 출력
-        return "스팸 의심 메일"
+    #Soft Voting
+    avg_pred = (knn_pred + nb_pred) / 2
+
+    # 최종 예측 결정
+    final_pred = np.argmax(avg_pred, axis=1)[0]
+
+    return spam_ham_suspicions(final_pred)
+    
