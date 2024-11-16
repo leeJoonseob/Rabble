@@ -25,10 +25,6 @@ def predict_email(title, content):
     nb_pred = nb_model.predict(test_tfidf)[0]
 
     #Soft Voting
-    avg_pred = (knn_pred + nb_pred) / 2
-
-    # 최종 예측 결정
-    final_pred = np.argmax(avg_pred, axis=1)[0]
+    final_pred = (knn_pred + nb_pred) / 2
 
     return spam_ham_suspicions(final_pred)
-    
