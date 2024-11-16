@@ -50,7 +50,6 @@ def train_model():
     # TF-IDF 모델 저장
     joblib.dump(tfidf, 'tfidf_model.pkl')
 
-    print("모델이 학습되고 저장되었습니다.")
     return knn, nb_model
 
 # 모델 학습
