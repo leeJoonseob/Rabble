@@ -9,6 +9,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.regularizers import l1, l2, l1_l2
 from tensorflow.keras.optimizers import Adam
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 import logging
@@ -31,6 +32,9 @@ logger.info("데이터 타입 변경 완료")
 X_train,X_test,y_train,y_test = train_test_split(spam_ham['메일제목'], spam_ham['메일종류'], test_size=0.3, random_state=42)
 logger.info("데이터 분리 완료")
 
+tfidf = TfidfVectorizer(max_features=3000)
+X_train_tfidf = tfidf.fit_transform(X_train)
+X_val_tfidf = tfidf.transform(X_test)
 
 # 형태소 분석 적용
 # Morphological Analysis
@@ -56,29 +60,29 @@ vocab_size = encoder.vocab_size
 
 def create_regularized_model(input_dim, output_dim):
     model = Sequential([
-        Embedding(input_dim = vocab_size,output_dim = 64, input_length=max_len),
+        Embedding(input_dim = vocab_size,output_dim=64, input_length=max_len),
         GlobalAveragePooling1D(),
         # L1 정규화
         Dense(64, activation='relu', input_shape=(input_dim,),
-              kernel_regularizer=l1(0.01)),
-        Dropout(0.3),  # 30% 드롭아웃
+              kernel_regularizer=l1(0.02)),
+        Dropout(0.3),
         
         # L2 정규화
         Dense(32, activation='relu',
-              kernel_regularizer=l2(0.01)),
-        Dropout(0.3),  # 30% 드롭아웃
+              kernel_regularizer=l2(0.02)),
+        Dropout(0.3),
         
         # L1 및 L2 정규화 동시 적용
         Dense(16, activation='relu',
-              kernel_regularizer=l1_l2(l1=0.01, l2=0.01)),
-        Dropout(0.3),  # 30% 드롭아웃
+              kernel_regularizer=l1_l2(l1=0.02, l2=0.02)),
+        Dropout(0.3), 
         
         Dense(output_dim, activation='softmax')
     ])
     
     # 모델 컴파일
     model.compile(optimizer=Adam(learning_rate=0.001),
-                  loss='categorical_crossentropy',
+                  loss='binary_crossentropy',
                   metrics=['accuracy'])
     
     return model
@@ -90,11 +94,11 @@ model = create_regularized_model(input_dim, output_dim)
 logger.info("모델 컴파일 완료")
 
 #early stopping
-early_stopping = EarlyStopping(monitor='val_loss', patience=5,restore_best_weights=True)
+early_stopping = EarlyStopping(monitor='val_loss', patience=20,restore_best_weights=True)
 
 logger.info("학습 시작")
 #train
-history = model.fit(X_train, y_train, batch_size=20, epochs=200, 
+history = model.fit(X_train_tfidf, y_train, batch_size=20, epochs=200, 
                     validation_data=(X_test, y_test), callbacks=[early_stopping])
 
 #evaluation
