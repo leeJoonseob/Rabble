@@ -16,6 +16,7 @@ def combined_data():
     spam_message = pd.read_csv("Rabble/datasets/spam_virus.csv")
     google_message['메일종류'] = '햄'
     spam_message['메일종류'] = '스팸'
+    google_message['메일제목'] = google_message['메일제목'] + ' ' + google_message['메일내용']
     final_google_df = google_message[['메일종류', '메일제목']]
     final_spam_df = spam_message[['메일종류', '메일제목']]
 
