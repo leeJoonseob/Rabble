@@ -1,3 +1,5 @@
+from pre_processing import data_preprocessing as dp
+
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import KNeighborsClassifier
@@ -11,6 +13,23 @@ tfidf = None
 knn = None
 nb_model = None
 
+def process_data(X_train, X_test):
+    # 형태소 분석 적용
+    # Morphological Analysis
+    X_train_tokenized = X_train.apply(dp.tokenize_kiwi)
+    X_test_tokenized = X_test.apply(dp.tokenize_kiwi)
+    
+
+    #padding - make all data to same length
+    max_len = max(len(i) for i in X_train)
+    encoder = dp.TextEncoder()
+    encoder.fit(X_test_tokenized)
+    X_train = encoder.encode(X_train)
+    X_test = encoder.encode(X_test_tokenized)
+    
+    return X_train, X_test
+    
+
 def combined_data():
     google_message = pd.read_csv("Rabble/datasets/messages.csv")
     spam_message = pd.read_csv("Rabble/datasets/spam_virus.csv")
@@ -21,7 +40,7 @@ def combined_data():
     final_spam_df = spam_message[['메일종류', '메일제목']]
 
     ham_count = final_google_df.shape[0]
-    final_spam_df = final_spam_df.sample(n=ham_count, random_state=42)
+    final_spam_df = final_spam_df.sample(n=ham_count, random_state=33)
     combined_df = pd.concat([final_google_df, final_spam_df], axis=0, ignore_index=True)
     return combined_df
 
@@ -32,11 +51,15 @@ def train_model():
     X = combined_data_df['메일제목']
     y = combined_data_df['메일종류'].apply(lambda x: 1 if x == '스팸' else 0)
 
-    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
 
+    #K-NN 모델 학습을 위한 TF-IDF 벡터화
     tfidf = TfidfVectorizer(max_features=3000)
     X_train_tfidf = tfidf.fit_transform(X_train)
-    X_val_tfidf = tfidf.transform(X_val)
+    X_val_tfidf = tfidf.transform(X_test)
+
+    #나이브 베이즈 모델 학습을 위한 kiwi 형태소 분석
+    X_train_kiwi, X_test_kiwi = process_data(X_train, X_test)
 
     # K-NN 모델 학습
     knn = KNeighborsClassifier(n_neighbors=5)
@@ -45,11 +68,21 @@ def train_model():
 
     # 나이브 베이즈 모델 학습
     nb_model = MultinomialNB()
-    nb_model.fit(X_train_tfidf, y_train)
+    nb_model.fit(X_train_kiwi, y_train)
     joblib.dump(nb_model, 'nb_model.pkl')
 
     # TF-IDF 모델 저장
     joblib.dump(tfidf, 'tfidf_model.pkl')
+
+    # 모델 평가
+    knn_pred = knn.predict(X_val_tfidf)
+    nb_pred = nb_model.predict(X_test_kiwi)
+
+    print('K-NN 정확도:', accuracy_score(y_val, knn_pred))
+    print('K-NN 혼동 행렬:\n', confusion_matrix(y_val, knn_pred))
+    
+    print('나이브 베이즈 정확도:', accuracy_score(y_val, nb_pred))
+    print('나이브 베이즈 혼동 행렬:\n', confusion_matrix(y_val, nb_pred))
 
     return knn, nb_model
 
