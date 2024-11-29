@@ -1,3 +1,5 @@
 .DS_Store
 post_processing/__pycache__/
 pre_processing/__pycache__/
+test_data.py
+develop.py
