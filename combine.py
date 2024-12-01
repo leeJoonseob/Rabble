@@ -27,7 +27,7 @@ def combine_data():
     ham_count = final_google_df.shape[0] + final_ham_df.shape[0]
 
     # Spam 데이터 언더샘플링
-    final_spam_df = final_spam_df.sample(n=ham_count*2, random_state=42)
+    final_spam_df = final_spam_df.sample(n=ham_count, random_state=42)
     
     # 데이터 결합
     combined_df = pd.concat([final_google_df, final_spam_df,final_ham_df], axis=0, ignore_index=True)

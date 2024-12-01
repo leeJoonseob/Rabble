@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from post_processing.predict import predict_email
+from post_processing.predict import predict_email, predict_email_deep
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -13,8 +13,18 @@ CORS(app)
 # nb_model = joblib.load('Rabble/models/nb_model.pkl')
 # vectorizer = joblib.load('count_vectorizer.joblib')
 
-@app.route('/predict', methods=['POST'])
-def predict():
+@app.route('/predict_deeplearning', methods=['POST'])
+def predict_deepleaning():
+    data = request.json
+    title = data['title']
+    content = data['content']
+    
+    result = predict_email_deep(title, content)
+    
+    return jsonify({'result': result})
+
+@app.route('/predict_machinelearning', methods=['POST'])
+def predict_machinelearning():
     data = request.json
     title = data['title']
     content = data['content']
