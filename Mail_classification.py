@@ -54,10 +54,7 @@ def train_model():
     #K-NN 모델 학습을 위한 TF-IDF 벡터화
     tfidf = TfidfVectorizer(max_features=3000)
     X_train_tfidf = tfidf.fit_transform(X_train)
-    X_val_tfidf = tfidf.transform(X_test)
-
-    #나이브 베이즈 모델 학습을 위한 kiwi 형태소 분석
-    X_train_kiwi, X_test_kiwi = process_data(X_train, X_test)
+    X_test_tfidf = tfidf.transform(X_test)
 
     # K-NN 모델 학습
     knn = KNeighborsClassifier(n_neighbors=5)
@@ -66,15 +63,15 @@ def train_model():
 
     # 나이브 베이즈 모델 학습
     nb_model = MultinomialNB()
-    nb_model.fit(X_train_kiwi, y_train)
+    nb_model.fit(X_train_tfidf, y_train)
     joblib.dump(nb_model, 'nb_model.pkl')
 
     # TF-IDF 모델 저장
     joblib.dump(tfidf, 'tfidf_model.pkl')
 
     # 모델 평가
-    knn_pred = knn.predict(X_val_tfidf)
-    nb_pred = nb_model.predict(X_test_kiwi)
+    knn_pred = knn.predict(X_test_tfidf)
+    nb_pred = nb_model.predict(X_test_tfidf)
 
     print('K-NN 정확도:', accuracy_score(y_val, knn_pred))
     print('K-NN 혼동 행렬:\n', confusion_matrix(y_val, knn_pred))
@@ -84,8 +81,8 @@ def train_model():
 
     return knn, nb_model
 
-# # 모델 학습
-# train_model()
+# 모델 학습
+train_model()
 
 
 
